@@ -125,9 +125,9 @@ router.put("/edit/:id", (req, res) => {
 })
 
 router.post("/invest", async(req, res) => {
-    var data = { price: "", date: "" }
+    var data = { price: "", date: "", uid: "", value: "" }
     const { value } = req.body;
-
+    data.value = value
     try {
         // COINAPI
         // const res = await superagent.get('https://rest.coinapi.io/v1/assets/BTC?apikey=FE4D06D2-273E-45EF-A491-E6E198668DE7');
@@ -151,6 +151,7 @@ router.post("/invest", async(req, res) => {
         }
         const decodedJwt = await promisify(jwt.verify)(req.headers.token, process.env.jwtSecret);
         const uid = decodedJwt.id;
+        data.uid = uid
         db.query("INSERT INTO Investments SET ?", {
             price: data.price,
             value: value,
@@ -168,7 +169,7 @@ router.post("/invest", async(req, res) => {
         console.log(err.message);
 
     };
-    res.send("Investment is send succesfully")
+    res.send("Message:Investment is send succesfully" + data)
 
 
 })
