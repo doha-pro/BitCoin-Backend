@@ -14,16 +14,23 @@ const db = mysql.createConnection({
     database: process.env.database
 });
 router.post("/register", (req, res) => {
+    const response = { message: "" }
     const { name, email, password, passwordConfirmation } = req.body;
     db.query('SELECT email FROM users where email=?', [email], async(error, results) => {
         if (error) {
             console.log(error)
         }
-        if (results.length > 0) {
-            return res.status(401).send("message:This email is already used ")
-        } else {
+        if (results.length == 1) {
+            console.log(results)
+            response.message = "message:This email is already used "
+            console.log(response)
+            return res.status(400).send(response)
+        }
+        if (results.length == 0) {
             if (password !== passwordConfirmation) {
-                return res.status(401).send("message: Password don't match")
+                response.message = "message: Password don't match"
+                console.log(response)
+                return res.status(400).send(response)
 
             } else {
                 let hashedPassword = await bcrypt.hash(password, 8);
@@ -31,7 +38,9 @@ router.post("/register", (req, res) => {
                     if (error) {
                         console.log(error)
                     } else {
-                        return res.status(200).send("Succesfull")
+                        console.log(response)
+                        response.message = "Registered succesfully"
+                        return res.status(200).send(response)
                             // return res.send("WEEEEEEEEEEEEEEEEEEEEEEEE")
                     }
                 });
